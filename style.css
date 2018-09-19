@@ -1,0 +1,170 @@
+:root {
+  --happy-red: #FF585B;
+  --happy-red-dark: #C44143;
+  --happy-orange: #FFA409;
+  --happy-green: #7ABF20;
+  --happy-green-dark: #598F14;
+  --happy-blue: #2EA8FF;
+  --happy-blue-dark: #1E6DA6;
+  --happy-purple: #A939B9;
+  --light-grey: #EEEEEE;
+  --medium-grey: #AAAAAA;
+  --dark-grey: #888888;
+  --body-width: 800px;
+}
+
+p, h2, h3, h4 {
+  width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+p {
+  text-align: justify;
+}
+
+h5 {
+  font: 20px "Avenir";
+  display: inline-block;
+  color: #aaaaaa;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-right: 20px;
+  margin-left: 0;
+  padding: 0;
+  position: relative;
+}
+
+p {
+  font-size: 16px;
+  line-height: 170%;
+}
+
+code {
+  font-size: 80%;
+  background-color: #f2f2f2;
+  padding:4px;
+  border-radius: 4px;
+}
+
+body {
+  font-family: "HelveticaNeue";
+  width: 1240px;
+  margin: auto;
+}
+
+footer {
+  height: 200px;
+}
+
+pre:first-line {
+    line-height: 0px;
+}
+.snippet {
+  padding: 0;
+  display: block;
+  width: 600px;
+  margin: auto;
+  border: 1px solid lightgray;
+}
+
+#editor {
+  display: inline-block;
+  height: 600px;
+  width: 600px;
+  margin: 10px;
+  border: 1px solid lightgray;
+}
+
+#myCanvas {
+  display: inline-block;
+}
+
+button {
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  margin: 5px;
+  text-align: center;
+  outline: none;
+  font: 16px "Avenir";
+  font-weight: bold;
+  display: inline-block;
+  border-radius: 5px;
+}
+
+.startbtn {
+  width: 70px;
+  background-color: var(--happy-green);
+  font-family: "Avenir";
+}
+.startbtn:hover {
+  background-color: var(--happy-green-dark);
+}
+
+.stopbtn {
+  width: 70px;
+  background-color: var(--happy-red);
+  font-family: "Avenir";
+}
+.stopbtn:hover {
+  background-color: var(--happy-red-dark);
+}
+
+.compilebtn {
+  background-color: #0082e0;
+  font-family: "Avenir";
+}
+.compilebtn:hover {
+  background-color: #0770ba;
+}
+
+.resetbtn {
+  background-color: #fc9700;
+  font-family: "Avenir";
+}
+.resetbtn:hover {
+  background-color: #d68307;
+}
+
+
+.custom-select {
+  position: relative;
+  float: right;
+  height: 45px;
+  max-width: 300px;
+  min-width: 200px;
+  border: 2px solid #0082e0;
+  background-color: #f8f8f8;
+  z-index: 10;
+  margin: 10px;
+}
+.custom-select select {
+  border: none;
+  outline: none;
+  background: transparent;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: 0;
+  margin: 0;
+  display: block;
+  width: 100%;
+  padding: 10px;
+  color: #0082e0;
+  font: 18px "Avenir";
+  font-weight: bold;
+}
+.custom-select:after {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 50px;
+  height: 100%;
+  line-height: 45px;
+  content: "\2193";
+  text-align: center;
+  color: #0082e0;
+  font-size: 30px;
+  border-left: 2px solid #0082e0;
+  z-index: -1;
+}

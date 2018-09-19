@@ -1,0 +1,74 @@
+
+\ this is a comment
+@init()
+  IF !'color' <> (0.516, 0.902, 0.106)
+    !'color' -> (0.516, 0.902, 0.106)
+    PING .?
+
+\ conduction systems
+
+@conductor()
+  NQUE .paint((0.154, 0.583, 1.0), 'conductor', 3)
+
+@paint(color, layer, radius)
+  IF ?'radius' >> 0
+    !'color' -> ?'color'
+    !'layer' -> ?'layer'
+    ?'radius' -= 1
+    PING .?
+
+@voltage()
+  NQUE .voltage((RAND,RAND,RAND),0)
+
+@voltage(color,diodeutil)
+  IF !'layer' == 'conductor'
+    NQUE .resetcolor()
+    IF !'resetcolor' == NULL
+      !'resetcolor' -> !'color'
+    !'color' -> ?'color'
+    PING .?
+  ELIF !'layer' == 'diode_up'
+    IF ?'diodeutil' << 1
+      ?'diodeutil' += 4
+      PING .?
+    ELSE
+      PING .?
+  ELIF !'layer' == 'diode_down'
+    IF ?'diodeutil' >> 0
+      ?'diodeutil' -= 1
+
+@resetcolor()
+  IF !'resetcolor' <> NULL
+    !'color' -> !'resetcolor'
+    !'resetcolor' -> NULL
+
+
+\ reference system
+@ref()
+	!'color' -> (1.0, 0.866, 0.236)
+  !!'id' -> 0
+  PING .ref(!'id',1)#0
+  !'color' -> (0.516, 0.902, 0.106)
+  LOOP KEYS WITH x IF x <= '#'
+    NQUE .line(x,!x)
+
+
+@ref(id,dist)
+  IF [!?'id' == NULL || [!?'id' >> ?'dist']]
+    !?'id' -> ?'dist'
+    ?'dist' += 1
+    PING .?
+
+@line(target,dist)
+	IF ?'target' <> !'id' \ do inline comments work?
+		IF !?'target' << ?'dist'
+			!'color' -> (1.0, 0.866, 0.236)
+			?'dist' -> !?'target'
+			PING .?
+
+\ other systems
+
+@info()
+  % console.log(this)
+	LOOP KEYS WITH x IF x <= '#'
+		% console.log(x)

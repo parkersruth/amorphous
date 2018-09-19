@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html lang='en'>
+<head>
+    <meta charset="UTF-8">
+    <title>Amorphous Computing Simulator</title>
+</head>
+
+<body>
+<link rel="stylesheet" href="style.css">
+
+<center><h1> Amorphous Computing Simulator </h1></center>
+<center><p>Click or drag to interact with the simulation. Use the drop-down menu to
+change the trigger mode.</p></center>
+
+<div style='border: 1px solid black;'>
+    <div align='right'>
+        <h5 id="stepnum">stepnum 0</h5>
+        <h5 id="fps">0 fps</h5>
+        <label class="custom-select"><select id="triggerMenu" name="options"></select></label>
+    </div>
+
+    <hr>
+
+    <div id="editor"></div>
+
+    <canvas id="myCanvas" width=600 height=615></canvas>
+
+    <hr>
+
+    <div align="center" style="margin:10px">
+        <button onclick="compile()" id='compilebtn' class="compilebtn">COMPILE</button>
+        <button onclick="startstop()" id='startstopbtn' class="startbtn">START</button>
+        <button onclick="reset()" id="resetbtn" class="resetbtn"> RESET </button>
+    </div>
+
+
+    <script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src='cell.js' type="text/javascript" charset="utf-8"></script>
+    <script src='blob.js' type="text/javascript" charset="utf-8"></script>
+    <script src='tokenizer.js' type="text/javascript" charset="utf-8"></script>
+    <script src='compiler.js' type="text/javascript" charset="utf-8"></script>
+    <script src='helpers.js' type="text/javascript" charset="utf-8"></script>
+    <script src='main.js' type="text/javascript" charset="utf-8"></script>
+
+</div>
+
+
+<h2>Amorphous Computing</h2>
+
+<p>Amorphous computing leverages the collective behavior of locally interacting
+    processing units to produce complex computation and behavior. Each cell
+    interacts only with its immediate neighbors by passing small messages called
+    <strong>pings</strong>. Cell behavior is programmed by defining how to
+    respond to pings of different types. The cells are programmed identically,
+    but can store local state information to differentiate behavior. Pings
+    originate from cell neighbors or from the user's mouse events.</p>
+
+<h2>The Ping Programming Language</h2>
+
+<p>The simulation is programmed in Ping, a language designed for specifically
+    for amorphous computing. Ping uses symantic whitespace, dynamic typing, and
+    deliberately unconventional syntax.</p>
+
+<h3>Example 0</h3>
+
+<p>The simplest program prints <code>hello world</code> to the browser console
+    when a cell is clicked.</p>
+
+<div><pre><code class="snippet">@hello_world()
+    PUTS 'hello world'</code></pre></div>
+
+<h3>Example 1</h3>
+
+<p>Here is a simple ping definition that turns a cell green when clicked:</p>
+
+<div><pre><code class="snippet">@turn_green()
+  !'color' -> (0, 1, 0)</code></pre></div>
+
+<p>Ping definitions are marked with the <code>@</code> symbol. In this example,
+    we define a new ping called <code>turn_green</code> with no arguments. Upon
+    recieving this ping, a cell will set its <code>color</code> attribute to the
+    RGB tuple <code>(0, 1, 0)</code>. The amorphous simulator automatically
+    renders this as the color green. In the simulator, you can use this ping to
+    change the color of a single cell by clicking on it. If instead you wish for
+    all cells to automatically turn green on reset, you can use the special
+    <code>_init</code> ping.</p>
+
+<div><pre><code class="snippet">@_init()
+  !'color' -> (0, 1, 0)</code></pre></div>
+
+<h3>Example 2</h3>
+
+<p>Data can be associated with a cell or with an individual ping with a
+    dictionary-like interface. Cell data is referenced with the <code>!</code>
+    operator; for example, <code>!'color'</code> returns the cell's color. Ping
+    data is referenced with the <code>?</code> operator; for example
+    <code>?'delay'</code> could be the number of cycles to delay before
+    resending this ping. Here is an example of setting and accessing cell and
+    ping data:</p>
+
+<div><pre><code class="snippet">@propogate_red()
+  NQUE ._propogate_color((1, 0, 0))
+
+@propogate_green()
+  NQUE ._propogate_color((0, 1, 0))
+
+@propogate_blue()
+  NQUE ._propogate_color((0, 0, 1))
+
+@_propogate_color(color)
+  IF !'color' <> ?'color' \ if not already the color
+    !'color' -> ?'color'  \ change the color
+    PING .?               \ broadcast the same ping to neighbors</code></pre></div>
+
+<p>The <code>NQUE</code> command adds (enqueues) a new ping to the current
+    cell's own queue. The <code>PING</code> command adds the specified ping to
+    all of the cell's neighbors' queues. The first three methods can be
+    triggered by the user, but the fourth method is hidden from the user because
+    it begins with an underscore. It is advisable to make any methods with
+    arguments hidden, since the behavior is undefined when no argument is
+    provided. Here, the <code>propogate_red</code>, <code>propogate_green</code>,
+    and <code>propogate_blue</code> methods all simply enqueue a new ping of
+    type <code>_propogate_color</code> with different arguments. The hidden
+    method checks if the cell's color has already been changed (<code><></code>
+    is the &quot;not equals&quot; operator); if not, it modifies its color to
+    that specified by the ping (<code>-></code> is the assignment operator) and
+    sends copies of the same message to its neighbors. Note that the last line
+    is a shorthand equivalent to <code>PING ._propogate_color(?'color')</code>.
+    Inline comments begin with a backlash.</p>
+
+<h3>Preventing Explosions</h3>
+
+<p>In Example 2, we checked if the color had already been changed before
+    propogating the message further. Consider what would have happened if we
+    excluded this check; since every step would multiply the number of pings in
+    circulation, the total number of pings would grow exponentially. Even after
+    all the cells had changed colors, extraneous pings would continue flying
+    about left and right. Such &quot;ping explosions&quot; are the amorphous
+    computing equivalent of infinite loops. Builtin language support to
+    automatically suppress explosions has not yet been implemented.</p>
+
+<h3>Example 3</h3>
+
+<p>Ping can loop over iterables with a supplied temporary variable. The syntax
+<code>LOOP <i>iterable</i> WITH <i>variable</i></code> is equivalent to Python's
+<code>for <i>variable</i> in <i>iterable</i></code>. Iterables objects include
+tuples like <code>(1, 2, 3)</code> and the builtins <code>KEYS</code> and
+<code>VALS</code> which iterate over the cell data keys and values respectively.
+</p>
+
+<div><pre><code class="snippet">@layer_one()
+  NQUE ._layer((0.154, 0.583, 1.0), 'layer_one', 3)
+
+@layer_two()
+  NQUE ._layer((1, 0.64, 0.04), 'layer_two', 3)
+
+@_layer(color, layer, radius)
+  IF ?'radius' >> 0
+    !'color' -> ?'color'
+    !'resetcolor' -> ?'color'
+    !?'layer' -> 'standby'
+    ?'radius' -= 1
+    PING .?
+
+@pulse()
+  color -> (RAND, RAND, RAND)
+  LOOP KEYS WITH key
+    IF key <= 'layer_'
+      NQUE ._pulse_color(color, key)
+
+@_pulse_color(color, layer)
+  IF !?'layer' == 'standby'
+    !?'layer' -> 'pulsing'
+    NQUE ._resetcolor(?'layer', 1)
+    !'color' -> ?'color'
+    PING .?
+
+@_resetcolor(layer, delay)
+  IF !?'layer' == 'pulsing'
+    IF ?'delay' >> 0
+      ?'delay' -= 1
+      NQUE .?
+    ELSE
+      !'color' -> !'resetcolor'
+      !?'layer' -> 'standby'</code></pre></div>
+
+<p>(Here <code>RAND</code> returns a random number between 0 and 1.)</p>
+
+<h4>Handling Collisions</h4>
+
+<p> In addition to explosions, collisions between multiple propogating pings
+are a common cause of unsuspected behavior. In Example 3, we use the
+<code>!'resetcolor'</code> attribute to ensure the proper color is obtained.</p>
+
+<h2> Language Reference </h2>
+
+<h3> Keywords </h3>
+<div><pre><code class="snippet">PUTS     \ prints to the browser console log
+PING     \ send copies of ping to all neighboring cells
+NQUE     \ enqueues ping to current cell's queue
+IF       \ starts an if conditional
+ELIF     \ starts an else-if conditional
+ELSE     \ starts an else conditional
+LOOP     \ used with the WITH keyword for loops
+WITH     \ used with the LOOP keyword for loops</code></pre></div>
+
+<h3> Constants </h3>
+<div><pre><code class="snippet">RAND     \ random number between 0 and 1
+NULL     \ default value associated with all unassigned keys
+KEYS     \ list of keys in local cell data
+VALS     \ list of values in local cell data</code></pre></div>
+
+<h3> Symbols and Operators </h3>
+<div><pre><code class="snippet">&&    \ logical and
+||    \ logical or
+==    \ equal (data, not reference)
+<>    \ not equal
+>>    \ greater than
+<<    \ less than
+>=    \ ints: less than or equal to, strings: ends with
+<=    \ ints: greater than or equal to, strings: starts with
++     \ ints: addition, strings: concatenation
+-     \ ints: subtraction, strings: undefined
+*     \ multiplication
+/     \ division
++=    \ increase by
+-=    \ decrease by
+*=    \ muiltiply by
+/=    \ divide by
+->    \ assignment (a -> assigns a the value of b)
+!     \ cell data accessor
+?     \ ping data accessor
+@     \ new ping definition
+.     \ new ping instantiation
+(     \ tuple or arg list open
+)     \ tuple or arg list close
+[     \ conditional expression open
+]     \ conditional expression close
+\     \ start of inline comment</code></pre></div>
+
+
+<script>
+    var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/pinguin");
+    editor.session.setMode("ace/mode/ping");
+    editor.setOptions({
+        tabSize: 2,
+        highlightActiveLine: false,
+        highlightGutterLine: false,
+    })
+    editor.renderer.setOptions({
+        highlightGutterLine: false
+    })
+    editor.renderer.setScrollMargin(10, 10);
+    editor.$blockScrolling = Infinity;
+
+    for (elem of document.getElementsByClassName('snippet')) {
+        const code = resymbolize(elem.innerHTML);
+        editor = ace.edit(elem)
+        editor.setTheme('ace/theme/pinguin');
+        editor.session.setMode('ace/mode/ping');
+        editor.setOptions({
+            tabSize: 2,
+            highlightActiveLine: false,
+            highlightGutterLine: false,
+            maxLines: 100
+        })
+        editor.$blockScrolling = Infinity;
+        editor.renderer.$cursorLayer.element.style.display = "none"
+        editor.renderer.setScrollMargin(10, 10)
+        editor.setValue(code, -1);
+        editor.setReadOnly(true);
+    }
+
+</script>
+
+</body>
+<footer></footer>
+</html>
