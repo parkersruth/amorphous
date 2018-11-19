@@ -4,6 +4,7 @@ function RuntimeError(message, row, col) {
 }
 
 function rgb_from_vec(vec) {
+  // console.log(vec);
   rgb = vec.map(function(x) { return Math.round(x * 255); });
   return 'rgb(' + rgb.join(',') + ')';
 }
@@ -90,6 +91,70 @@ function shuffle(array) {
   return array;
 }
 
+function add(a, b) {
+  if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length == b.length) {
+      newarr = [];
+      for (var i = 0; i < a.length; i++) {
+        newarr.push(add(a[i], b[i]));
+      }
+      return newarr;
+    } else {
+      window.alert('could not add (' + a + ') and (' + b + ')')
+    }
+  } else {
+    return a + b;
+  }
+}
+
+function subtract(a, b) {
+  if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length == b.length) {
+      newarr = [];
+      for (var i = 0; i < a.length; i++) {
+        newarr.push(subtract(a[i], b[i]));
+      }
+      return newarr;
+    } else {
+      window.alert('could not subtract (' + a + ') and (' + b + ')')
+    }
+  } else {
+    return a - b;
+  }
+}
+
+function multiply(a, b) {
+  if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length == b.length) {
+      newarr = [];
+      for (var i = 0; i < a.length; i++) {
+        newarr.push(multiply(a[i], b[i]));
+      }
+      return newarr;
+    } else {
+      window.alert('could not multiply (' + a + ') and (' + b + ')')
+    }
+  } else {
+    return a * b;
+  }
+}
+
+function divide(a, b) {
+  if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length == b.length) {
+      newarr = [];
+      for (var i = 0; i < a.length; i++) {
+        newarr.push(divide(a[i], b[i]));
+      }
+      return newarr;
+    } else {
+      window.alert('could not divide (' + a + ') and (' + b + ')')
+    }
+  } else {
+    return a / b;
+  }
+}
+
 String.prototype.replaceAll = function(search, replacement) {
     var target = this;
     return target.replace(new RegExp(search, 'g'), replacement);
@@ -100,4 +165,15 @@ function resymbolize(code) {
   code = code.replaceAll('&lt;', '<')
   code = code.replaceAll('&amp;', '&')
   return code
+}
+
+function shuffle(a) {
+    var j, x, i;
+    for (i = a.length - 1; i > 0; i--) {
+        j = Math.floor(Math.random() * (i + 1));
+        x = a[i];
+        a[i] = a[j];
+        a[j] = x;
+    }
+    return a;
 }

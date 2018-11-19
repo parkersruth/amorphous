@@ -43,7 +43,7 @@ class Compiler {
   error(message) {
     window.alert(message+" at row "+this.token.row+", column "+this.token.col);
     console.log(this.pingdefs);
-    throw new CompilerError(message, this.token.row, this.token.col);
+    throw new CompilerError(message, this.token.row+1, this.token.col);
   }
 
   compile() {
@@ -102,7 +102,7 @@ class Compiler {
       if (type) {
         var entry = this.match(type);
       } else {
-        var entry = this.matchData();
+        var entry = this.matchExpression();
       }
       list.push(entry);
       if (this.matches('aux', ',')) {
@@ -153,12 +153,40 @@ class Compiler {
     } else if (this.matches('executable')) {
       statement += this.match('executable');
     } else {
-      statement += this.matchValue() + ' ';
-      statement += this.matchAssignment() + ' ';
-      statement += this.matchExpression() + ';';
+      const value = this.matchValue();
+      statement += value + '=';
+      if (this.matches('aux', '->')) {
+        this.match('aux', '->');
+        statement += this.matchExpression();
+      } else if (this.matches('aux', '+=')) {
+        this.match('aux', '+=');
+        statement += 'add(' + value + ',' + this.matchExpression() + ')';
+      } else if (this.matches('aux', '-=')) {
+        this.match('aux', '-=');
+        statement += 'subtract(' + value + ',' + this.matchExpression() + ')';
+      } else if (this.matches('aux', '*=')) {
+        this.match('aux', '*=');
+        statement += 'multiply(' + value + ',' + this.matchExpression() + ')';
+      } else if (this.matches('aux', '/=')) {
+        this.match('aux', '/=');
+        statement += 'divide(' + value + ',' + this.matchExpression() + ')';
+      }
     }
     statement += '\n';
     return statement;
+  }
+
+  matchAssignment() {
+    const ops = ['+=','-=','*=','/=']
+    if (this.matches('aux') && ops.includes(this.token.content)) {
+      return this.match('aux');
+    }
+    if (this.matches('aux', '->')) {
+      this.match('aux', '->');
+      return '=';
+    } else {
+      this.error('expected assignment operator but found ' + this.token);
+    }
   }
 
   matchPing() {
@@ -266,19 +294,6 @@ class Compiler {
     return 'tempvar_' + variable;
   }
 
-  matchAssignment() {
-    const ops = ['+=','-=','*=','/=']
-    if (this.matches('aux') && ops.includes(this.token.content)) {
-      return this.match('aux');
-    }
-    if (this.matches('aux', '->')) {
-      this.match('aux', '->');
-      return '=';
-    } else {
-      this.error('expected assignment operator but found ' + this.token);
-    }
-  }
-
   matchComparison() {
     let comparison = ''
     const a = this.matchData();
@@ -309,21 +324,45 @@ class Compiler {
   }
 
   matchExpression() {
-    let expression = this.matchData();
-    function more(self) {
-      const ops = ['+', '-', '*', '/'];
-      for (var i = 0; i < ops.length; i++) {
-        if (self.matches('aux', ops[i])) {
-          return true;
-        }
-      }
-      return false;
+    if (this.matches('aux', '[')) {
+      this.match('aux', '[');
+      let expression = '(' + this.matchExpression() + ')';
+      this.match('aux', ']')
+      return expression;
     }
-    while (more(this)) {
-      expression += ' ' + this.match();
-      expression += ' ' + this.matchData();
+    let expression = this.matchData();
+    while (true) {
+      if (this.matches('aux', '+')) {
+        this.match('aux', '+');
+        expression = 'add('+expression+','+this.matchExpression()+')'
+      } else if (this.matches('aux', '-')) {
+        this.match('aux', '-');
+        expression = 'subtract('+expression+','+this.matchExpression()+')'
+      } else if (this.matches('aux', '*')) {
+        this.match('aux', '*');
+        expression = 'multiply('+expression+','+this.matchExpression()+')'
+      } else if (this.matches('aux', '/')) {
+        this.match('aux', '/');
+        expression = 'divide('+expression+','+this.matchExpression()+')'
+      } else {
+        break;
+      }
     }
     return expression;
+
+    // function more(self) {
+    //   const ops = ['+', '-', '*', '/'];
+    //   for (var i = 0; i < ops.length; i++) {
+    //     if (self.matches('aux', ops[i])) {
+    //       return true;
+    //     }
+    //   }
+    //   return false;
+    // }
+    // while (more(this)) {
+    //   expression += ' ' + this.match();
+    //   expression += ' ' + this.matchData();
+    // }
 
   }
 
@@ -340,7 +379,10 @@ class Compiler {
       return 'Math.random()';
     } else if (this.matches('keyword', 'NULL')) {
       this.match('keyword', 'NULL');
-      return 'undefined' // TODO: better way to handle this?
+      return 'undefined'
+    } else if (this.matches('keyword', 'INFT')) {
+      this.match('keyword', 'INFT');
+      return 'Infinity'
     } else if (this.matches('keyword', 'KEYS')) {
       this.match('keyword', 'KEYS');
       return 'cell.keys';

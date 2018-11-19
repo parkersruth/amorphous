@@ -8,7 +8,7 @@ var PingHighlightRules = function() {
 
     var keywords = "PUTS|PING|NQUE|IF|ELIF|ELSE|LOOP|WITH";
 
-    var builtinConstants = "RAND|NULL|KEYS|VALS";
+    var builtinConstants = "RAND|NULL|INFT|KEYS|VALS";
 
     var keywordMapper = this.createKeywordMapper({
         "constant.language": builtinConstants,

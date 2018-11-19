@@ -117,8 +117,8 @@ class Cell {
   }
 
   enqueue(ping) {
-    if (this.queue.length > 42) {
-      window.alert('Queue size exceeded 42. Please check for ping explosions.')
+    if (this.queue.length > 1000) {
+      window.alert('Queue size exceeded 1000. Please check for ping explosions.')
       throw "Explosion Detected";
     } else {
       for (var i = 0; i < this.queue.length; i++) {
@@ -134,11 +134,10 @@ class Cell {
     this.temp = {};
     const numpings = this.queue.length;
     for (var i = 0; i < numpings; i++) {
+    // if (numpings > 0) {
       const ping = this.queue.pop();
       this.dna.get(ping.name)(this, ping);
     }
-    // while (this.queue.length > 0) {
-    // }
   }
 
   trigger(ping) {

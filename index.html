@@ -7,13 +7,19 @@
 </head>
 
 <body>
+
 <link rel="stylesheet" href="style.css">
 
-<center><h1> Amorphous Computing Simulator </h1></center>
-<center><p>Click or drag to interact with the simulation. Use the drop-down menu to
-change the trigger mode.</p></center>
+<!-- <center><h1> PINGUIN </h1></center> -->
+<center><img width=250px src="pinguin.png"></center>
+<center><div class='subtitle'> Click or drag to interact with the simulation.
+    Use the drop-down menu to change the trigger mode.</div></center>
 
-<div style='border: 1px solid black;'>
+<div style='border: 1px solid black; width: 1240px; margin: auto;'>
+    <button onclick="setExample(0)" id='ex0btn' class='examplebtn'>EXAMPLE 0</button>
+    <button onclick="setExample(1)" id='ex1btn' class='examplebtn'>EXAMPLE 1</button>
+    <button onclick="setExample(2)" id='ex2btn' class='examplebtn'>EXAMPLE 2</button>
+    <button onclick="setExample(3)" id='ex3btn' class='examplebtn'>EXAMPLE 3</button>
     <div align='right'>
         <h5 id="stepnum">stepnum 0</h5>
         <h5 id="fps">0 fps</h5>
@@ -45,200 +51,408 @@ change the trigger mode.</p></center>
 
 </div>
 
+<div class='readme'>
+<!-- BEGIN README -->
+<h2 id="gettingstarted">Getting Started</h2>
 
-<h2>Amorphous Computing</h2>
+<h3 id="amorphouscomputing">Amorphous Computing</h3>
 
 <p>Amorphous computing leverages the collective behavior of locally interacting
-    processing units to produce complex computation and behavior. Each cell
-    interacts only with its immediate neighbors by passing small messages called
-    <strong>pings</strong>. Cell behavior is programmed by defining how to
-    respond to pings of different types. The cells are programmed identically,
-    but can store local state information to differentiate behavior. Pings
-    originate from cell neighbors or from the user's mouse events.</p>
+processing units to produce complex computation and behavior. Each cell
+interacts only with its immediate neighbors by passing small messages called
+<strong>pings</strong>. Cell behavior is programmed by defining how to respond to pings of
+different types. The cells are programmed identically, but can store local state
+information to differentiate behavior. Pings originate from cell neighbors or
+from the user&#8217;s mouse events.</p>
 
-<h2>The Ping Programming Language</h2>
+<h3 id="thepingprogramminglanguage">The Ping Programming language</h3>
 
 <p>The simulation is programmed in Ping, a language designed for specifically
-    for amorphous computing. Ping uses symantic whitespace, dynamic typing, and
-    deliberately unconventional syntax.</p>
+for amorphous computing. Ping uses semantic whitespace, dynamic typing, and
+deliberately peculiar syntax.</p>
 
-<h3>Example 0</h3>
+<h3 id="basics">Basics</h3>
 
-<p>The simplest program prints <code>hello world</code> to the browser console
-    when a cell is clicked.</p>
+<p>This simple Ping program prints <code>hello world</code> to the browser&#8217;s debug console
+when a cell is clicked.</p>
 
-<div><pre><code class="snippet">@hello_world()
-    PUTS 'hello world'</code></pre></div>
+<pre><code class="ping">@hello_world()
+    PUTS 'hello world'
+</code></pre>
 
-<h3>Example 1</h3>
+<p>A more visual example is this Ping program that turns a cell green when clicked:</p>
 
-<p>Here is a simple ping definition that turns a cell green when clicked:</p>
+<pre><code class="ping">@turn_green()
+  !'color' -&gt; (0, 1, 0)
+</code></pre>
 
-<div><pre><code class="snippet">@turn_green()
-  !'color' -> (0, 1, 0)</code></pre></div>
+<p>Ping definitions are marked with the <code>@</code> symbol. In this example, we define a
+new ping called <code>turn_green</code> with no arguments. Upon receiving this ping, a cell
+will set its <code>color</code> attribute to the RGB tuple <code>(0, 1, 0)</code>. The amorphous
+simulator automatically renders this as the color green. In the simulator, you
+can use this ping to change the color of a single cell by clicking on it. If
+instead you wish for all cells to automatically turn green on reset, you can use
+the special <code>_init</code> ping.</p>
 
-<p>Ping definitions are marked with the <code>@</code> symbol. In this example,
-    we define a new ping called <code>turn_green</code> with no arguments. Upon
-    recieving this ping, a cell will set its <code>color</code> attribute to the
-    RGB tuple <code>(0, 1, 0)</code>. The amorphous simulator automatically
-    renders this as the color green. In the simulator, you can use this ping to
-    change the color of a single cell by clicking on it. If instead you wish for
-    all cells to automatically turn green on reset, you can use the special
-    <code>_init</code> ping.</p>
-
-<div><pre><code class="snippet">@_init()
-  !'color' -> (0, 1, 0)</code></pre></div>
-
-<h3>Example 2</h3>
+<pre><code class="ping">@_init()
+  !'color' -&gt; (0, 1, 0)
+</code></pre>
 
 <p>Data can be associated with a cell or with an individual ping with a
-    dictionary-like interface. Cell data is referenced with the <code>!</code>
-    operator; for example, <code>!'color'</code> returns the cell's color. Ping
-    data is referenced with the <code>?</code> operator; for example
-    <code>?'delay'</code> could be the number of cycles to delay before
-    resending this ping. Here is an example of setting and accessing cell and
-    ping data:</p>
+dictionary-like interface. Cell data is referenced with the <code>!</code> operator; for
+example, <code>!'color'</code> returns the cell&#8217;s current color. Ping data is referenced
+with the <code>?</code> operator; for example <code>?'color'</code> could be the color a cell is
+instructed to change to. Here is an example of setting and accessing cell and
+ping data:</p>
 
-<div><pre><code class="snippet">@propogate_red()
-  NQUE ._propogate_color((1, 0, 0))
+<pre><code class="ping">@propagate_red()
+  NQUE ._propagate_color((1, 0, 0))
 
-@propogate_green()
-  NQUE ._propogate_color((0, 1, 0))
+@propagate_green()
+  NQUE ._propagate_color((0, 1, 0))
 
-@propogate_blue()
-  NQUE ._propogate_color((0, 0, 1))
+@propagate_blue()
+  NQUE ._propagate_color((0, 0, 1))
 
-@_propogate_color(color)
-  IF !'color' <> ?'color' \ if not already the color
-    !'color' -> ?'color'  \ change the color
-    PING .?               \ broadcast the same ping to neighbors</code></pre></div>
+@_propagate_color(color)
+  IF !'color' &lt;&gt; ?'color' \ if not already the color
+    !'color' -&gt; ?'color'  \ change the color
+    PING .?               \ re-broadcast the same ping to neighbors
+</code></pre>
 
-<p>The <code>NQUE</code> command adds (enqueues) a new ping to the current
-    cell's own queue. The <code>PING</code> command adds the specified ping to
-    all of the cell's neighbors' queues. The first three methods can be
-    triggered by the user, but the fourth method is hidden from the user because
-    it begins with an underscore. It is advisable to make any methods with
-    arguments hidden, since the behavior is undefined when no argument is
-    provided. Here, the <code>propogate_red</code>, <code>propogate_green</code>,
-    and <code>propogate_blue</code> methods all simply enqueue a new ping of
-    type <code>_propogate_color</code> with different arguments. The hidden
-    method checks if the cell's color has already been changed (<code><></code>
-    is the &quot;not equals&quot; operator); if not, it modifies its color to
-    that specified by the ping (<code>-></code> is the assignment operator) and
-    sends copies of the same message to its neighbors. Note that the last line
-    is a shorthand equivalent to <code>PING ._propogate_color(?'color')</code>.
-    Inline comments begin with a backlash.</p>
+<p>The <code>NQUE</code> command pushes (enqueues) a new ping to the current cell&#8217;s own queue.
+The <code>PING</code> command pushes the specified ping to all of the cell&#8217;s neighbors'
+queues. The first three methods can be triggered by the user, but the fourth
+method is hidden from the user because it begins with an underscore. It is
+advisable to make any methods with arguments hidden. (An unspecified ping
+arguments will default to <code>NULL</code>). Here, the <code>propagate_red</code>, <code>propagate_green</code>,
+and <code>propagate_blue</code> methods all simply enqueue a new ping of type
+<code>_propagate_color</code> with different arguments. The hidden method checks if the
+cell&#8217;s color has already been changed (<code>&lt;&gt;</code> is the &#8220;not equals&#8221; operator); if
+not, it modifies its color to that specified by the ping (<code>-&gt;</code> is the assignment
+operator) and sends copies of the same message to its neighbors. Note that the
+last line is a shorthand equivalent to <code>PING ._propagate_color(?'color')</code>.
+Inline comments begin with a backlash.</p>
 
-<h3>Preventing Explosions</h3>
+<p>In the program above, we checked if the color had already been changed before
+propagating the message further. Consider what would have happened if we
+excluded this check; since every step would multiply the number of pings in
+circulation, the total number of pings would grow exponentially. Even after all
+the cells had changed colors, extraneous pings would continue flying about left
+and right. Such &#8220;ping explosions&#8221; are the amorphous computing equivalent of
+infinite loops.</p>
 
-<p>In Example 2, we checked if the color had already been changed before
-    propogating the message further. Consider what would have happened if we
-    excluded this check; since every step would multiply the number of pings in
-    circulation, the total number of pings would grow exponentially. Even after
-    all the cells had changed colors, extraneous pings would continue flying
-    about left and right. Such &quot;ping explosions&quot; are the amorphous
-    computing equivalent of infinite loops. Builtin language support to
-    automatically suppress explosions has not yet been implemented.</p>
+<h3 id="example1-globalgeometry">Example 1 - Global Geometry</h3>
 
-<h3>Example 3</h3>
+<p>Example 1 demonstrates the ability to measure long-range distances by drawing
+a Vornoi pattern from cells.</p>
+
+<pre><code class="ping">@_init()
+  !'id' -&gt; RAND
+
+\ place a Vornoi cell vertex
+@vertex()
+  NQUE ._vertex('dist_' + !'id', 0, (RAND, RAND, RAND))
+
+@_vertex(id, dist, color)
+  IF !?'id' == NULL || !?'id' &gt;= ?'dist'
+    !?'id' -&gt; ?'dist'
+    ?'dist' += 1
+    NQUE ._color_if_closest(?'id', ?'color')
+    PING .?
+
+\ match the color of the closest vertex
+@_color_if_closest(id, color)
+  dist -&gt; !?'id'
+  is_closest -&gt; 1
+  LOOP KEYS WITH key IF [key &lt;= 'dist' &amp;&amp; key &lt;&gt; ?'id']
+    IF !key &lt;= dist
+      is_closest -&gt; 0
+  IF is_closest == 1
+    !'color' -&gt; ?'color'
+</code></pre>
 
 <p>Ping can loop over iterables with a supplied temporary variable. The syntax
-<code>LOOP <i>iterable</i> WITH <i>variable</i></code> is equivalent to Python's
-<code>for <i>variable</i> in <i>iterable</i></code>. Iterables objects include
-tuples like <code>(1, 2, 3)</code> and the builtins <code>KEYS</code> and
-<code>VALS</code> which iterate over the cell data keys and values respectively.
-</p>
+<code>LOOP &lt;iterable&gt; WITH &lt;variable&gt;</code> is equivalent to Python&#8217;s
+<code>for &lt;variable&gt; in &lt;iterable&gt;</code>. To compactly iterate over a subset of
+the iterable, use the syntax <code>LOOP &lt;iterable&gt; WITH &lt;variable&gt; IF &lt;conditional&gt;</code>
+(this is similar to Python&#8217;s list comprehension).
+Iterables objects include tuples like <code>(1, 2, 3)</code> and the builtins <code>KEYS</code> and
+<code>VALS</code> which iterate over the cell data keys and values respectively. <code>RAND</code>
+returns a random number between 0 and 1.</p>
 
-<div><pre><code class="snippet">@layer_one()
+<p>When a cell modifies the data associated with a ping (e.g. <code>?'radius' -= 1</code>),
+it does not affect any similar pings in the queues of neighboring cells. In
+other words, the <code>PING</code> command creates copies of the local ping object to put
+in the queues of neighboring cells.</p>
+
+<h3 id="example2-differentiatedbehavior">Example 2 - Differentiated Behavior</h3>
+
+<p>Example 1 demonstrates the use of local state to support cell differentiation.</p>
+
+<pre><code class="ping">@_init()
+  start_color -&gt; (0.516, 0.902, 0.106)
+  !'color' -&gt; start_color
+  !'reset_color' -&gt; start_color
+  !'layer_zero' -&gt; 'standby'
+
+\ paint a region of layer one
+@layer_one()
   NQUE ._layer((0.154, 0.583, 1.0), 'layer_one', 3)
 
+\ paint a region of layer two
 @layer_two()
   NQUE ._layer((1, 0.64, 0.04), 'layer_two', 3)
 
 @_layer(color, layer, radius)
-  IF ?'radius' >> 0
-    !'color' -> ?'color'
-    !'resetcolor' -> ?'color'
-    !?'layer' -> 'standby'
+  IF ?'radius' &gt;&gt; 0
+    !'color' -&gt; ?'color'
+    !'reset_color' -&gt; ?'color'
+    !?'layer' -&gt; 'standby'
+    !'layer_zero' -&gt; NULL
     ?'radius' -= 1
     PING .?
 
+\ create a single propagating pulse
 @pulse()
-  color -> (RAND, RAND, RAND)
-  LOOP KEYS WITH key
-    IF key <= 'layer_'
-      NQUE ._pulse_color(color, key)
+  color -&gt; (RAND, RAND, RAND)
+  LOOP KEYS WITH key IF key &lt;= 'layer_'
+    NQUE ._pulse_color(color, key)
 
 @_pulse_color(color, layer)
   IF !?'layer' == 'standby'
-    !?'layer' -> 'pulsing'
-    NQUE ._resetcolor(?'layer', 1)
-    !'color' -> ?'color'
+    !?'layer' -&gt; 'pulsing'
+    NQUE ._reset_color(?'layer', 1)
+    !'color' -&gt; ?'color'
     PING .?
 
-@_resetcolor(layer, delay)
+@_reset_color(layer, delay)
   IF !?'layer' == 'pulsing'
-    IF ?'delay' >> 0
+    IF ?'delay' &gt;&gt; 0
       ?'delay' -= 1
       NQUE .?
     ELSE
-      !'color' -> !'resetcolor'
-      !?'layer' -> 'standby'</code></pre></div>
+      !'color' -&gt; !'reset_color'
+      !?'layer' -&gt; 'standby'
 
-<p>(Here <code>RAND</code> returns a random number between 0 and 1.)</p>
+\ create node emanating repeated pulses
+@blinker()
+  NQUE .pulse()
+  NQUE ._blink_delay(5)
 
-<h4>Handling Collisions</h4>
+@_blink_delay(delay)
+  IF ?'delay' &lt;= 0
+    NQUE .blinker()
+  ELSE
+    ?'delay' -= 1
+    NQUE .?
+</code></pre>
 
-<p> In addition to explosions, collisions between multiple propogating pings
-are a common cause of unsuspected behavior. In Example 3, we use the
-<code>!'resetcolor'</code> attribute to ensure the proper color is obtained.</p>
+<p>In addition to explosions, collisions between multiple propagating pings are a
+common cause of unexpected behavior. In Example 3, we use the <code>!'reset_color'</code>
+attribute to ensure the proper color is obtained.</p>
 
-<h2> Language Reference </h2>
+<p>In Ping, booleans only exist implicitly inside of conditionals. This means that
+variables cannot be assigned boolean values and there are no boolean primitives;
+instead, you should use descriptive strings to store binary states.</p>
 
-<h3> Keywords </h3>
-<div><pre><code class="snippet">PUTS     \ prints to the browser console log
+<h3 id="example3-gradientdescent">Example 3 - Gradient Descent</h3>
+
+<p>Example 3 demonstrates an optimization problem using gradient descent where
+multiple particles can parallelize the traversal of a global loss function.
+It is also reminiscent of biological cells navigating a chemical gradient.</p>
+
+<pre><code class="ping">@_init()
+  !'id' -&gt; RAND
+  !'reset_delay' -&gt; 0
+  NQUE .__reset_color()
+
+\ this looping ping should only be called in init
+@__reset_color()
+  IF !'reset_delay' &gt;&gt; 0
+    !'reset_delay' -= 1
+  ELIF !'grad' &lt;&gt; NULL
+    r -&gt; 0.5 + [0.4 / !'grad']
+    g -&gt; 0.9
+    b -&gt; 0.1 + [0.8 * [1 - 1 / !'grad']]
+    !'color' -&gt; (r, g, b)
+  NQUE .__reset_color()
+
+@gradient()
+  NQUE ._gradient(1)
+
+@_gradient(grad)
+  IF !'grad' == NULL || !'grad' &gt;= ?'grad'
+    !'grad' -&gt; ?'grad'
+    ?'grad' += 1
+    \ NQUE ._reset_color(3)
+    PING .?
+
+\ spawn a new searching particle
+@spawn()
+  NQUE ._spawn(!'id', (RAND, RAND, RAND), 0)
+
+@_spawn(id, color)
+  IF !'grad' &lt;&gt; 1
+    IF !'state' == NULL &amp;&amp; ?'id' == !'id'
+      PUTS !'id' + ' is active'
+      !'state' -&gt; 'alive'
+      !'color' -&gt; ?'color'
+      !'reset_delay' -&gt; 3
+      PING ._poll_grad(!'color')
+
+\ poll neighboring cells to estimate local gradient
+@_poll_grad(color)
+  IF !'state' == NULL
+    !'color' -&gt; ?'color'
+    !'reset_delay' -&gt; 3
+    PING ._reply_grad(!'id', !'grad')
+
+\ step in a direction of non-increasing gradient
+@_reply_grad(id, grad)
+  IF !'state' == 'alive'
+    IF ?'grad' &lt;&lt; !'grad'
+      !'state' -&gt; NULL
+      PING ._spawn(?'id', !'color')
+</code></pre>
+
+<p>Ping uses square brackets <code>[</code> and <code>]</code> to disambiguate order of operations. When
+ambiguity arises, Ping always executes operations right to left; there are no
+operation priorities. For example <code>1 + 2 * 3</code> is equivalent to <code>1 + [2 * 3]</code>,
+which evaluates to <code>7</code>, while <code>[1 + 2] * 3</code> evaluates to <code>9</code>.</p>
+
+<h2 id="languagereference">Language Reference</h2>
+
+<h3 id="keywords">Keywords</h3>
+
+<pre><code class="ping">PUTS     \ prints to the browser console log
 PING     \ send copies of ping to all neighboring cells
 NQUE     \ enqueues ping to current cell's queue
 IF       \ starts an if conditional
 ELIF     \ starts an else-if conditional
 ELSE     \ starts an else conditional
 LOOP     \ used with the WITH keyword for loops
-WITH     \ used with the LOOP keyword for loops</code></pre></div>
+WITH     \ used with the LOOP keyword for loops
+</code></pre>
 
-<h3> Constants </h3>
-<div><pre><code class="snippet">RAND     \ random number between 0 and 1
+<h3 id="constants">Constants</h3>
+
+<pre><code class="ping">RAND     \ random number between 0 and 1
 NULL     \ default value associated with all unassigned keys
+INFT     \ infinity evaluates larger than any other number
 KEYS     \ list of keys in local cell data
-VALS     \ list of values in local cell data</code></pre></div>
+VALS     \ list of values in local cell data
+</code></pre>
 
-<h3> Symbols and Operators </h3>
-<div><pre><code class="snippet">&&    \ logical and
-||    \ logical or
-==    \ equal (data, not reference)
-<>    \ not equal
->>    \ greater than
-<<    \ less than
->=    \ ints: less than or equal to, strings: ends with
-<=    \ ints: greater than or equal to, strings: starts with
-+     \ ints: addition, strings: concatenation
--     \ ints: subtraction, strings: undefined
-*     \ multiplication
-/     \ division
-+=    \ increase by
--=    \ decrease by
-*=    \ muiltiply by
-/=    \ divide by
-->    \ assignment (a -> assigns a the value of b)
-!     \ cell data accessor
-?     \ ping data accessor
-@     \ new ping definition
-.     \ new ping instantiation
-(     \ tuple or arg list open
-)     \ tuple or arg list close
-[     \ conditional expression open
-]     \ conditional expression close
-\     \ start of inline comment</code></pre></div>
+<h3 id="symbolsandoperators">Symbols and Operators</h3>
 
+<pre><code class="ping">&amp;&amp;       \ logical and
+||       \ logical or
+==       \ equal (data, not reference)
+&lt;&gt;       \ not equal
+>&gt;       \ greater than
+&lt;&lt;       \ less than
+>=       \ ints: less than or equal to, strings: ends with
+&lt;=       \ ints: greater than or equal to, strings: starts with
++        \ ints: addition, strings: concatenation
+-        \ ints: subtraction, strings: undefined
+*        \ multiplication
+/        \ division
++=       \ increase by
+-=       \ decrease by
+*=       \ multiply by
+/=       \ divide by
+-&gt;       \ assignment (a -&gt; assigns a the value of b)
+!        \ cell data accessor
+?        \ ping data accessor
+@        \ new ping definition
+.        \ new ping instantiation
+(        \ tuple or arg list open
+)        \ tuple or arg list close
+[        \ operation grouping open
+]        \ operation grouping close
+\        \ start of inline comment
+</code></pre>
+
+<h3 id="grammar">GRAMMAR</h3>
+
+<p>Following is a context-free grammar for the Ping programming language in
+Backus-Naur form.</p>
+
+<ul>
+<li><code>&lt;identifier&gt;</code> is a variable name (a letter or underscore followed by letters
+underscores and numbers).</li>
+<li><code>&lt;number&gt;</code> is an integer or floating point decimal value.</li>
+<li><code>&lt;string&gt;</code> is a string literal enclosed in single or double quotes.</li>
+<li>The pre-compiler tokenizes the input and converts indentation changes
+into <code>&quot;{&quot;</code> and <code>&quot;}&quot;</code>braces. The grammar below contains brace symbols from the
+tokenized pre-compiler output.</li>
+</ul>
+
+<pre><code class="code">&lt;ping-defs&gt;   ::= &quot;&quot; | &lt;ping-defs&gt; &lt;ping-defs&gt;
+		            | &quot;@&quot; &lt;identifier&gt; &quot;(&quot; &lt;arg-list&gt; &quot;)&quot; &lt;block&gt;
+
+&lt;arg-list&gt;    ::= &quot;&quot; | &lt;identifier&gt; | &lt;identifier&gt; &quot;,&quot; &lt;arg-list&gt;
+
+&lt;block&gt;       ::= &quot;{&quot; &lt;statements&gt; &quot;}&quot;
+
+&lt;statements&gt;  ::= &lt;statements&gt; &lt;statements&gt;
+                | &quot;NQUE&quot; &lt;ping&gt; | &quot;PING&quot; &lt;ping&gt;
+                | &lt;if&gt; | &lt;loop&gt;
+                | &lt;value&gt; &lt;assignment&gt; &lt;expression&gt;
+                | &quot;PUTS&quot; &lt;expression&gt;
+
+&lt;ping&gt;        ::= &quot;.&quot; &lt;identifier&gt; &lt;tuple&gt;
+		            | &quot;.&quot; &quot;?&quot;
+
+&lt;if&gt;          ::= &quot;IF&quot; &lt;boolean&gt; &lt;block&gt; &lt;elifs&gt; &lt;else&gt;
+
+&lt;elifs&gt;       ::= &quot;&quot; | &quot;ELIF&quot; &lt;boolean&gt; &lt;block&gt; &lt;elifs&gt;
+
+&lt;else&gt;        ::= &quot;&quot; | &quot;ELSE&quot; &lt;boolean&gt; &lt;block&gt;
+
+&lt;loop&gt;        ::= &quot;LOOP&quot; &lt;data&gt; &quot;WITH&quot; &lt;variable&gt; &lt;block&gt;
+                | &quot;LOOP&quot; &lt;data&gt; &quot;WITH&quot; &lt;variable&gt; &quot;IF&quot; &lt;boolean&gt; &lt;block&gt;
+
+&lt;boolean&gt;     ::= &lt;data&gt; &lt;comparator&gt; &lt;data&gt;
+                | &lt;boolean&gt; &quot;&amp;&amp;&quot; &lt;boolean&gt;
+                | &lt;boolean&gt; &quot;||&quot; &lt;boolean&gt;
+                | &quot;[&quot; &lt;boolean&gt; &quot;]&quot;
+
+&lt;comparator&gt;  ::= &quot;==&quot; | &quot;&lt;&lt;&quot; | &quot;&gt;&gt;&quot; | &quot;&lt;=&quot; | &quot;&gt;=&quot;
+
+&lt;value&gt;       ::= &lt;identifier&gt;
+		            | &quot;!&quot; + &lt;data&gt;
+		            | &quot;?&quot; + &lt;string&gt;
+
+&lt;assignment&gt;  ::= &quot;-&gt;&quot; | &quot;+=&quot; | &quot;-=&quot;
+
+&lt;expression&gt;  ::= &lt;data&gt;
+		            | &lt;expression&gt; &lt;bin-op&gt; &lt;expression&gt;
+                | &quot;[&quot; &lt;expression&gt; &quot;]&quot;
+
+&lt;bin-op&gt;      ::= &quot;+&quot; | &quot;-&quot; | &quot;*&quot; | &quot;/&quot;
+
+&lt;data&gt;        ::= &quot;RAND&quot; | &quot;NULL&quot; | &quot;IMFT&quot; | &quot;KEYS&quot; | &quot;VALS&quot;
+            		| &lt;number&gt; | &lt;string&gt;
+            		| &quot;(&quot; &lt;data-list&gt; &quot;)&quot;
+            		| &lt;value&gt;
+
+&lt;data-list&gt;   ::= &quot;&quot; | &lt;data&gt; | &lt;data&gt; &quot;,&quot; &lt;data-list&gt;
+</code></pre>
+
+<h3 id="additionalnotes">Additional Notes</h3>
+
+<p>Pinguin was inspired by the work of Hal Abelson, Daniel Coore, Radhika Nagpal,
+Erik Rauch, Ron Weiss, and other amorphous computing researchers.</p>
+
+<p>Cells are distributed using an implementation of Mitchell&#8217;s Best Candidate
+algorithm for Poisson-disc sampling (based on Mike Bostock&#8217;s <a href="https://bl.ocks.org/mbostock/d7bf3bd67d00ed79695b">d3.js implementation</a>).</p>
+
+<p>This project is in beta. Please report issues to <strong>somewhere?</strong></p>
+
+<!-- END README -->
+</div>
 
 <script>
     var editor = ace.edit("editor");
@@ -255,8 +469,10 @@ VALS     \ list of values in local cell data</code></pre></div>
     editor.renderer.setScrollMargin(10, 10);
     editor.$blockScrolling = Infinity;
 
-    for (elem of document.getElementsByClassName('snippet')) {
-        const code = resymbolize(elem.innerHTML);
+    for (elem of document.getElementsByClassName('ping')) {
+        let stuff = elem.innerHTML;
+        stuff = stuff.substring(0, stuff.lastIndexOf("\n")); // trim last line
+        const code = resymbolize(stuff);
         editor = ace.edit(elem)
         editor.setTheme('ace/theme/pinguin');
         editor.session.setMode('ace/mode/ping');
@@ -272,6 +488,30 @@ VALS     \ list of values in local cell data</code></pre></div>
         editor.setValue(code, -1);
         editor.setReadOnly(true);
     }
+
+    for (elem of document.getElementsByClassName('code')) {
+        let stuff = elem.innerHTML;
+        stuff = stuff.substring(0, stuff.lastIndexOf("\n")); // trim last line
+        const code = resymbolize(stuff);
+        editor = ace.edit(elem)
+        editor.setTheme('ace/theme/pinguin');
+        editor.session.setMode('ace/mode/ping');
+        editor.setOptions({
+            tabSize: 2,
+            highlightActiveLine: false,
+            highlightGutterLine: false,
+            maxLines: 100
+        })
+        editor.$blockScrolling = Infinity;
+        editor.renderer.$cursorLayer.element.style.display = "none"
+        editor.renderer.setShowGutter(false);
+        editor.setShowPrintMargin(false);
+        editor.renderer.setScrollMargin(10, 10);
+        editor.setOption("displayIndentGuides", false);
+        editor.setValue(code, -1);
+        editor.setReadOnly(true);
+    }
+
 
 </script>
 

@@ -113,7 +113,9 @@ class Blob {
   }
 
   process(n = this.cells.length) {
-    // this.clear();
+
+    // this.cells = shuffle(this.cells)
+
     for (var i = 0; i < n; i++) {
       const cell = this.cells.pop();
       cell.process();

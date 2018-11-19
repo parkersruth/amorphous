@@ -4,8 +4,6 @@ const mainContext = mainCanvas.getContext('2d');
 const startstopbtn = document.getElementById('startstopbtn');
 const stepnumlabel = document.getElementById('stepnum');
 
-ace.edit("editor").setValue(testPing3, -1);
-
 let step = 0;
 let start_time = window.performance.now();
 let requestId;
@@ -13,8 +11,8 @@ let mousedowntime = 0;
 const b = new Blob(mainCanvas, mainContext);
 b.scatter(3000);
 b.cells = shuffle(b.cells);
-compile();
-startstop();
+setExample(0);
+// setExample(1);
 
 // TODO handle drag events as well
 mainCanvas.addEventListener("click", function(event) {
@@ -42,9 +40,16 @@ mainCanvas.addEventListener("mousemove", function(event) {
 b.process();
 
 
+function setExample(num) {
+  const pings = [testPing0, testPing1, testPing2, testPing3];
+  ace.edit("editor").setValue(pings[num], -1);
+  compile();
+}
+
 function animate() {
   step++;
-  b.process(Math.ceil(b.cells.length / 10));
+  b.process(Math.ceil(b.cells.length / 7));
+  // b.process()
 
   if (step % 60 == 0) {
     var delay = window.performance.now() - start_time;
@@ -68,19 +73,32 @@ function compile() {
   console.log(dna);
   b.reset(dna);
   stepnumlabel.innerHTML = "stepnum " + 0;
+  _start();
 }
 
 function startstop() {
+  if (b.playing) {
+    _stop();
+  } else {
+    _start();
+  }
+}
+
+function _start() {
+  if (!b.playing) {
+    b.playing = true;
+    startstopbtn.className = "stopbtn";
+    startstopbtn.innerHTML = "STOP";
+    animate();
+  }
+}
+
+function _stop() {
   if (b.playing) {
     b.playing = false;
     startstopbtn.className = "startbtn";
     startstopbtn.innerHTML = "START";
     cancelAnimationFrame(requestId);
-  } else {
-    b.playing = true;
-    startstopbtn.className = "stopbtn";
-    startstopbtn.innerHTML = "STOP";
-    animate();
   }
 }
 

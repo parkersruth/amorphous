@@ -1,0 +1,231 @@
+<h1 id="amorphouscomputingsimulation">Amorphous Computing Simulation</h1>
+
+<p>Amorphous computing leverages the collective behavior of locally interacting
+processing units to produce complex computation and behavior. Each cell
+interacts only with its immediate neighbors by passing small messages called
+<strong>pings</strong>. Cell behavior is programmed by defining how to respond to pings of
+different types. The cells are programmed identically, but can store local state
+information to differentiate behavior. Pings originate from cell neighbors or
+from the user&#8217;s mouse events.</p>
+
+<h3 id="basics">Basics</h3>
+
+<p>This simple Ping program prints <code>hello world</code> to the browser&#8217;s debug console
+when a cell is clicked.</p>
+
+<pre><code class="ping">@hello_world()
+    PUTS 'hello world'
+</code></pre>
+
+<p>A more visual example is this Ping program that turns a cell green when clicked:</p>
+
+<pre><code class="ping">@turn_green()
+  !'color' -&gt; (0, 1, 0)
+</code></pre>
+
+<p>Ping definitions are marked with the <code>@</code> symbol. In this example, we define a
+new ping called <code>turn_green</code> with no arguments. Upon receiving this ping, a cell
+will set its <code>color</code> attribute to the RGB tuple <code>(0, 1, 0)</code>. The amorphous
+simulator automatically renders this as the color green. In the simulator, you
+can use this ping to change the color of a single cell by clicking on it. If
+instead you wish for all cells to automatically turn green on reset, you can use
+the special <code>_init</code> ping.</p>
+
+<pre><code class="ping">@_init()
+  !'color' -&gt; (0, 1, 0)
+</code></pre>
+
+<p>Data can be associated with a cell or with an individual ping with a
+dictionary-like interface. Cell data is referenced with the <code>!</code> operator; for
+example, <code>!'color'</code> returns the cell&#8217;s current color. Ping data is referenced with the
+<code>?</code> operator; for example <code>?'color'</code> could be the color a cell is instructed to
+change to. Here is an example of setting and accessing cell and ping data:</p>
+
+<pre><code class="ping">@propagate_red()
+  NQUE ._propagate_color((1, 0, 0))
+
+@propagate_green()
+  NQUE ._propagate_color((0, 1, 0))
+
+@propagate_blue()
+  NQUE ._propagate_color((0, 0, 1))
+
+@_propagate_color(color)
+  IF !'color' &lt;&gt; ?'color' \ if not already the color
+    !'color' -&gt; ?'color'  \ change the color
+    PING .?               \ re-broadcast the same ping to neighbors
+</code></pre>
+
+<p>The <code>NQUE</code> command pushes (enqueues) a new ping to the current cell&#8217;s own queue.
+The <code>PING</code> command pushes the specified ping to all of the cell&#8217;s neighbors'
+queues. The first three methods can be triggered by the user, but the fourth
+method is hidden from the user because it begins with an underscore. It is
+advisable to make any methods with arguments hidden. (An unspecified ping
+arguments will default to <code>NULL</code>). Here, the <code>propagate_red</code>, <code>propagate_green</code>,
+and <code>propagate_blue</code> methods all simply enqueue a new ping of type
+<code>_propagate_color</code> with different arguments. The hidden method checks if the
+cell&#8217;s color has already been changed (<code>&lt;&gt;</code> is the &#8220;not equals&#8221; operator); if
+not, it modifies its color to that specified by the ping (<code>-&gt;</code> is the assignment
+operator) and sends copies of the same message to its neighbors. Note that the
+last line is a shorthand equivalent to <code>PING ._propagate_color(?'color')</code>.
+Inline comments begin with a backlash.</p>
+
+<p>In the program above, we checked if the color had already been changed before
+propagating the message further. Consider what would have happened if we
+excluded this check; since every step would multiply the number of pings in
+circulation, the total number of pings would grow exponentially. Even after all
+the cells had changed colors, extraneous pings would continue flying about left
+and right. Such &#8220;ping explosions&#8221; are the amorphous computing equivalent of
+infinite loops.</p>
+
+<h3 id="example1">Example 1</h3>
+
+<p>Example 2 demonstrates the use of local state to support cell differentiation.</p>
+
+<pre><code class="ping">@layer_one()
+  NQUE ._layer((0.154, 0.583, 1.0), 'layer_one', 3)
+
+@layer_two()
+  NQUE ._layer((1, 0.64, 0.04), 'layer_two', 3)
+
+@_layer(color, layer, radius)
+  IF ?'radius' &gt;&gt; 0
+    !'color' -&gt; ?'color'
+    !'resetcolor' -&gt; ?'color'
+    !?'layer' -&gt; 'standby'
+    ?'radius' -= 1
+    PING .?
+
+@pulse()
+  color -&gt; (RAND, RAND, RAND)
+  LOOP KEYS WITH key
+    IF key &lt;= 'layer_'
+      NQUE ._pulse_color(color, key)
+
+@_pulse_color(color, layer)
+  IF !?'layer' == 'standby'
+    !?'layer' -&gt; 'pulsing'
+    NQUE ._resetcolor(?'layer', 1)
+    !'color' -&gt; ?'color'
+    PING .?
+
+@_resetcolor(layer, delay)
+  IF !?'layer' == 'pulsing'
+    IF ?'delay' &gt;&gt; 0
+      ?'delay' -= 1
+      NQUE .?
+    ELSE
+      !'color' -&gt; !'resetcolor'
+      !?'layer' -&gt; 'standby'
+</code></pre>
+
+<p>Ping can loop over iterables with a supplied temporary variable. The syntax
+<code>LOOP &lt;iterable&gt; WITH &lt;variable&gt;</code> is equivalent to Python&#8217;s
+<code>for &lt;variable&gt; in &lt;iterable&gt;</code>. To compactly iterate over a subset of
+the iterable, use the syntax <code>LOOP &lt;iterable&gt; WITH &lt;variable&gt; IF &lt;conditional&gt;</code>
+(this is similar to Python&#8217;s list comprehension).
+Iterables objects include tuples like <code>(1, 2, 3)</code> and the builtins <code>KEYS</code> and
+<code>VALS</code> which iterate over the cell data keys and values respectively. <code>RAND</code>
+returns a random number between 0 and 1.</p>
+
+<p>In addition to explosions, collisions between multiple propagating pings are a
+common cause of unsuspected behavior. In Example 3, we use the <code>!'resetcolor'</code>
+attribute to ensure the proper color is obtained.</p>
+
+<h3 id="example2">Example 2</h3>
+
+<p>Example 2 demonstrates the ability to measure long-range distances by drawing
+a Vornoi pattern from cells.</p>
+
+<pre><code class="ping">@_init()
+  !'id' -&gt; RAND
+
+@vertex()
+  NQUE ._vertex('dist_' + !'id', 0, (RAND, RAND, RAND))
+
+@_vertex(id, dist, color)
+  IF !?'id' == NULL || !?'id' &gt;= ?'dist'
+    !?'id' -&gt; ?'dist'
+    ?'dist' += 1
+    NQUE ._color_if_closest(?'id', ?'color')
+    PING .?
+
+@_color_if_closest(id, color)
+  dist -&gt; !?'id'
+  is_closest -&gt; 1
+  LOOP KEYS WITH key IF [key &lt;= 'dist' &amp;&amp; key &lt;&gt; ?'id']
+    IF !key &lt;= dist
+      is_closest -&gt; 0
+  IF is_closest == 1
+    !'color' -&gt; ?'color'
+</code></pre>
+
+<p>Ping code can</p>
+
+<h2 id="languagereference">Language Reference</h2>
+
+<h3 id="keywords">Keywords</h3>
+
+<pre><code class="ping">PUTS     \ prints to the browser console log
+PING     \ send copies of ping to all neighboring cells
+NQUE     \ enqueues ping to current cell's queue
+IF       \ starts an if conditional
+ELIF     \ starts an else-if conditional
+ELSE     \ starts an else conditional
+LOOP     \ used with the WITH keyword for loops
+WITH     \ used with the LOOP keyword for loops
+</code></pre>
+
+<h3 id="constants">Constants</h3>
+
+<pre><code class="ping">RAND     \ random number between 0 and 1
+NULL     \ default value associated with all unassigned keys
+INFT     \ infinity evaluates larger than any other number
+KEYS     \ list of keys in local cell data
+VALS     \ list of values in local cell data
+</code></pre>
+
+<h3 id="symbolsandoperators">Symbols and Operators</h3>
+
+<pre><code class="ping">&amp;&amp;    \ logical and
+||    \ logical or
+==    \ equal (data, not reference)
+&lt;&gt;    \ not equal
+>&gt;    \ greater than
+&lt;&lt;    \ less than
+>=    \ ints: less than or equal to, strings: ends with
+&lt;=    \ ints: greater than or equal to, strings: starts with
++     \ ints: addition, strings: concatenation
+-     \ ints: subtraction, strings: undefined
+*     \ multiplication
+/     \ division
++=    \ increase by
+-=    \ decrease by
+*=    \ multiply by
+/=    \ divide by
+-&gt;    \ assignment (a -&gt; assigns a the value of b)
+!     \ cell data accessor
+?     \ ping data accessor
+@     \ new ping definition
+.     \ new ping instantiation
+(     \ tuple or arg list open
+)     \ tuple or arg list close
+[     \ conditional expression open
+]     \ conditional expression close
+\     \ start of inline comment
+</code></pre>
+
+<h3 id="additionalnotes">Additional Notes</h3>
+
+<ul>
+<li>Cell data can be keyed with any data type</li>
+<li>Ping data must be keyed with string</li>
+<li>Use square brackets to disambiguate operation border</li>
+<li>booleans only exist inside conditionals - no boolean datatype (use 0 and 1)</li>
+<li>if no brackets provided, operations are performed left to right (no PEMDAS)</li>
+<li>ALSO <code>INFT</code></li>
+<li>By the way, no tuple or string indexing, but this should be unnecessary</li>
+<li>Should fix the helper methods so elements can be concatenated to arrays?</li>
+<li>The compiler should alert unknown variable names</li>
+<li>Add speed slider?</li>
+</ul>

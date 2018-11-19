@@ -1,39 +1,48 @@
-const testPing = `
-@init()
-  NQUE .paint((RAND, RAND, RAND))
+const testPing0 = `\\ Hello Ping
 
-@paint(color)
-  IF !'color' <> ?'color'
+@trigger()
+  NQUE ._propogate((RAND, RAND, RAND))
+
+@_propogate(color)
+  IF ?'color' <> !'color'
     !'color' -> ?'color'
     PING .?
 `
 
-const testPing2 = `
-\\ this is a comment
-@init()
-  IF !'color' <> (0.516, 0.902, 0.106)
-    !'color' -> (0.516, 0.902, 0.106)
+const testPing1 = `\\ Example 1: Global Geometry
+
+@_init()
+  !'id' -> RAND
+
+\\ place a Vornoi cell vertex
+@vertex()
+  NQUE ._vertex('dist_' + !'id', 0, (RAND, RAND, RAND))
+
+@_vertex(id, dist, color)
+  IF !?'id' == NULL || !?'id' >= ?'dist'
+    !?'id' -> ?'dist'
+    ?'dist' += 1
+    NQUE ._color_if_closest(?'id', ?'color')
     PING .?
 
-\\ path system
-@path()
-  NQUE .paint((0.154, 0.583, RAND), 'path', 3)
-
-@paint(color, layer, radius)
-  IF ?'radius' >> 0
+\\ match the color of the closest vertex
+@_color_if_closest(id, color)
+  dist -> !?'id'
+  is_closest -> 1
+  LOOP KEYS WITH key IF [key <= 'dist' && key <> ?'id']
+    IF !key <= dist
+      is_closest -> 0
+  IF is_closest == 1
     !'color' -> ?'color'
-    !'layer' -> ?'layer'
-    ?'radius' -= 1
-    PING .?
 `
 
-const testPing3 = `\\ SAMPLE PROGRAM
+const testPing2 = `\\ Example 2: Differentiated Behavior
 
 \\ the _init method is triggered automatically on reset
 @_init()
   start_color -> (0.516, 0.902, 0.106)
   !'color' -> start_color
-  !'resetcolor' -> start_color
+  !'reset_color' -> start_color
   !'layer_zero' -> 'standby'
 
 \\ paint a region of layer one
@@ -47,33 +56,32 @@ const testPing3 = `\\ SAMPLE PROGRAM
 @_layer(color, layer, radius)
   IF ?'radius' >> 0
     !'color' -> ?'color'
-    !'resetcolor' -> ?'color'
+    !'reset_color' -> ?'color'
     !?'layer' -> 'standby'
     !'layer_zero' -> NULL
     ?'radius' -= 1
     PING .?
 
-\\ create a single propogating pulse
+\\ create a single propagating pulse
 @pulse()
   color -> (RAND, RAND, RAND)
-  LOOP KEYS WITH key
-    IF key <= 'layer_'
-      NQUE ._pulse_color(color, key)
+  LOOP KEYS WITH key IF key <= 'layer_'
+    NQUE ._pulse_color(color, key)
 
 @_pulse_color(color, layer)
   IF !?'layer' == 'standby'
     !?'layer' -> 'pulsing'
-    NQUE ._resetcolor(?'layer', 1)
+    NQUE ._reset_color(?'layer', 1)
     !'color' -> ?'color'
     PING .?
 
-@_resetcolor(layer, delay)
+@_reset_color(layer, delay)
   IF !?'layer' == 'pulsing'
     IF ?'delay' >> 0
       ?'delay' -= 1
       NQUE .?
     ELSE
-      !'color' -> !'resetcolor'
+      !'color' -> !'reset_color'
       !?'layer' -> 'standby'
 
 \\ create node emanating repeated pulses
@@ -88,6 +96,63 @@ const testPing3 = `\\ SAMPLE PROGRAM
     ?'delay' -= 1
     NQUE .?
 `
+
+const testPing3 = `\\ Example 3: Gradient Descent
+
+@_init()
+  !'id' -> RAND
+  !'reset_delay' -> 0
+  NQUE .__reset_color()
+
+\\ this looping ping should only be called in init
+@__reset_color()
+  IF !'reset_delay' >> 0
+    !'reset_delay' -= 1
+  ELIF !'grad' <> NULL
+    r -> 0.5 + [0.4 / !'grad']
+    g -> 0.9
+    b -> 0.1 + [0.8 * [1 - 1 / !'grad']]
+    !'color' -> (r, g, b)
+  NQUE .__reset_color()
+
+@gradient()
+  NQUE ._gradient(1)
+
+@_gradient(grad)
+  IF !'grad' == NULL || !'grad' >= ?'grad'
+    !'grad' -> ?'grad'
+    ?'grad' += 1
+    \\ NQUE ._reset_color(3)
+    PING .?
+
+\\ spawn a new searching particle
+@spawn()
+  NQUE ._spawn(!'id', (RAND, RAND, RAND), 0)
+
+@_spawn(id, color)
+  IF !'grad' <> 1
+    IF !'state' == NULL && ?'id' == !'id'
+      PUTS !'id' + ' is active'
+      !'state' -> 'alive'
+      !'color' -> ?'color'
+      !'reset_delay' -> 3
+      PING ._poll_grad(!'color')
+
+\\ poll neighboring cells to estimate local gradient
+@_poll_grad(color)
+  IF !'state' == NULL
+    !'color' -> ?'color'
+    !'reset_delay' -> 3
+    PING ._reply_grad(!'id', !'grad')
+
+\\ step in a direction of non-increasing gradient
+@_reply_grad(id, grad)
+  IF !'state' == 'alive'
+    IF ?'grad' << !'grad'
+      !'state' -> NULL
+      PING ._spawn(?'id', !'color')
+`
+
 
 function TokenError(message, row, col) {
   this.message = message;
@@ -115,7 +180,7 @@ class Tokenizer {
     this.col = 0;
     this.indent = 0;
     this.tokens = [];
-    this.keywords = ['PUTS', 'PING', 'NQUE', 'RAND', 'NULL',
+    this.keywords = ['PUTS', 'PING', 'NQUE', 'RAND', 'NULL', 'INFT',
     'LOOP', 'WITH', 'KEYS', 'VALS',
     'IF', 'ELIF', 'ELSE',]
     this.doubleOperators = ['==','<>','>>','<<','>=','<=',
