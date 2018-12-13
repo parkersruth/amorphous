@@ -412,4 +412,4 @@ Erik Rauch, Ron Weiss, and other amorphous computing researchers.
 Cells are distributed using an implementation of Mitchell's Best Candidate
 algorithm for Poisson-disc sampling (based on  Mike Bostock's [d3.js implementation](https://bl.ocks.org/mbostock/d7bf3bd67d00ed79695b)).
 
-This project is in beta. Please report issues [here](https://github.com/parkersruth/amorphous/issues).
+This project is in beta; please report issues [here](https://github.com/parkersruth/amorphous/issues).
