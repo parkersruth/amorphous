@@ -1,4 +1,6 @@
 
+See the full site at [parkersruth.github.io/amorphous/](https://parkersruth.github.io/amorphous/).
+
 ## Getting Started
 
 ### Amorphous Computing
