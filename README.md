@@ -1,5 +1,5 @@
 
-See the full site at [parkersruth.github.io/amorphous/](https://parkersruth.github.io/amorphous/).
+> See the full site at [parkersruth.github.io/amorphous/](https://parkersruth.github.io/amorphous/).
 
 ## Getting Started
 
@@ -14,9 +14,9 @@ information to differentiate behavior. Pings originate from cell neighbors or
 from the user's mouse events.
 
 
-### The Ping Programming language
+### The Ping Programming Panguage
 
-The simulation is programmed in Ping, a language designed for specifically
+The simulation is programmed in Ping, a language designed specifically
 for amorphous computing. Ping uses semantic whitespace, dynamic typing, and
 deliberately peculiar syntax.
 
@@ -133,7 +133,7 @@ Ping can loop over iterables with a supplied temporary variable. The syntax
 `for <variable> in <iterable>`. To compactly iterate over a subset of
 the iterable, use the syntax `LOOP <iterable> WITH <variable> IF <conditional>`
 (this is similar to Python's list comprehension).
-Iterables objects include tuples like `(1, 2, 3)` and the builtins `KEYS` and
+Iterable objects include tuples like `(1, 2, 3)` and the builtins `KEYS` and
 `VALS` which iterate over the cell data keys and values respectively. `RAND`
 returns a random number between 0 and 1.
 
@@ -340,7 +340,7 @@ VALS     \ list of values in local cell data
 \        \ start of inline comment
 ```
 
-### GRAMMAR
+### Grammar
 
 Following is a context-free grammar for the Ping programming language in
 Backus-Naur form.

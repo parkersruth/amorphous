@@ -53,6 +53,7 @@
 
 <div class='readme'>
 <!-- BEGIN README -->
+
 <h2 id="gettingstarted">Getting Started</h2>
 
 <h3 id="amorphouscomputing">Amorphous Computing</h3>
@@ -65,9 +66,9 @@ different types. The cells are programmed identically, but can store local state
 information to differentiate behavior. Pings originate from cell neighbors or
 from the user&#8217;s mouse events.</p>
 
-<h3 id="thepingprogramminglanguage">The Ping Programming language</h3>
+<h3 id="thepingprogrammingpanguage">The Ping Programming Panguage</h3>
 
-<p>The simulation is programmed in Ping, a language designed for specifically
+<p>The simulation is programmed in Ping, a language designed specifically
 for amorphous computing. Ping uses semantic whitespace, dynamic typing, and
 deliberately peculiar syntax.</p>
 
@@ -177,7 +178,7 @@ a Vornoi pattern from cells.</p>
 <code>for &lt;variable&gt; in &lt;iterable&gt;</code>. To compactly iterate over a subset of
 the iterable, use the syntax <code>LOOP &lt;iterable&gt; WITH &lt;variable&gt; IF &lt;conditional&gt;</code>
 (this is similar to Python&#8217;s list comprehension).
-Iterables objects include tuples like <code>(1, 2, 3)</code> and the builtins <code>KEYS</code> and
+Iterable objects include tuples like <code>(1, 2, 3)</code> and the builtins <code>KEYS</code> and
 <code>VALS</code> which iterate over the cell data keys and values respectively. <code>RAND</code>
 returns a random number between 0 and 1.</p>
 
@@ -374,7 +375,7 @@ VALS     \ list of values in local cell data
 \        \ start of inline comment
 </code></pre>
 
-<h3 id="grammar">GRAMMAR</h3>
+<h3 id="grammar">Grammar</h3>
 
 <p>Following is a context-free grammar for the Ping programming language in
 Backus-Naur form.</p>
@@ -449,7 +450,7 @@ Erik Rauch, Ron Weiss, and other amorphous computing researchers.</p>
 <p>Cells are distributed using an implementation of Mitchell&#8217;s Best Candidate
 algorithm for Poisson-disc sampling (based on Mike Bostock&#8217;s <a href="https://bl.ocks.org/mbostock/d7bf3bd67d00ed79695b">d3.js implementation</a>).</p>
 
-<p>This project is in beta. Please report issues <a href="https://github.com/parkersruth/amorphous/issues">here</a>.</p>
+<p>This project is in beta; please report issues <a href="https://github.com/parkersruth/amorphous/issues">here</a>.</p>
 
 <!-- END README -->
 </div>
