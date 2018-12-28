@@ -14,7 +14,7 @@ information to differentiate behavior. Pings originate from cell neighbors or
 from the user's mouse events.
 
 
-### The Ping Programming Panguage
+### The Ping Programming Language
 
 The simulation is programmed in Ping, a language designed specifically
 for amorphous computing. Ping uses semantic whitespace, dynamic typing, and
