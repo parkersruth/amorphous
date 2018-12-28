@@ -44,6 +44,12 @@ function setExample(num) {
   const pings = [testPing0, testPing1, testPing2, testPing3];
   ace.edit("editor").setValue(pings[num], -1);
   compile();
+
+  for (var i = 0; i < 4; i++) {
+    let id = 'ex' + i + 'btn';
+    elem = document.getElementById(id);
+    elem.setAttribute('selectified', i == num);
+  }
 }
 
 function animate() {

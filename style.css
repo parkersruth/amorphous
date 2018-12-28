@@ -172,7 +172,7 @@ button {
   color: #0082e0;
   font-family: "Avenir";
 }
-.examplebtn:hover {
+.examplebtn:hover, .examplebtn[selectified='true'] {
   background-color: #0082e0;
   color: #ffffff;
 }
