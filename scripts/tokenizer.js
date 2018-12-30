@@ -122,7 +122,6 @@ const testPing3 = `\\ Example 3: Gradient Descent
   IF !'grad' == NULL || !'grad' >= ?'grad'
     !'grad' -> ?'grad'
     ?'grad' += 1
-    \\ NQUE ._reset_color(3)
     PING .?
 
 \\ spawn a new searching particle
