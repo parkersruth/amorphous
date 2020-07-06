@@ -13,13 +13,8 @@
   --body-width: 800px;
 }
 
-/* header {
-  font-family: "HelveticaNeue";
-  width: 1240px;
-  margin: auto;
-} */
 body {
-  font-family: "HelveticaNeue";
+  font-family: "Open Sans";
   width: 1240px;
   margin: auto;
 }
@@ -34,8 +29,8 @@ footer {
 
 
 h1 {
-  font-family: "HelveticaNeue-Thin";
-  font-weight: normal;
+  font-family: "Nunito Sans";
+  font-weight: 200;
   font-size: 300%;
   letter-spacing: 0.05em;
   margin-bottom: 0;
@@ -45,13 +40,14 @@ h1 {
 }
 
 .subtitle {
-  font-family: "HelveticaNeue";
+  font-family: "Nunito Sans";
   font-weight: normal;
   padding-bottom: 20px;
 }
 
 h2 {
-  font-family: "HelveticaNeue-Thin";
+  font-family: "Nunito Sans";
+  font-weight: 200;
   font-weight: normal;
   font-size: 200%;
 }
@@ -71,7 +67,7 @@ h3 {
 }
 
 h5 {
-  font: 20px "Avenir";
+  font: 20px "Open Sans";
   display: inline-block;
   color: #aaaaaa;
   margin-top: 20px;
