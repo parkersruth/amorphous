@@ -9,7 +9,7 @@ let start_time = window.performance.now();
 let requestId;
 let mousedowntime = 0;
 const b = new Blob(mainCanvas, mainContext);
-b.scatter(3000);
+b.scatter(8000);
 b.cells = shuffle(b.cells);
 setExample(0);
 // setExample(1);
