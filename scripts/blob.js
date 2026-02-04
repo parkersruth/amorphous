@@ -125,7 +125,10 @@ class Blob {
   }
 
   click_handler(event) {
-    const cell = this.nearest(event.layerX, event.layerY);
+    const rect = this.canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    const cell = this.nearest(x, y);
     if (cell != undefined) {
       var trigmen = document.getElementById("triggerMenu");
       var trig = trigmen.options[trigmen.selectedIndex].value;
